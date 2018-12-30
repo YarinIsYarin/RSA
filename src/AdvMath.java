@@ -2,10 +2,11 @@ import java.math.BigInteger;
 import java.util.Random;
 import java.util.Stack;
 
-
+// Some of the code in this class is all ready implemented in the BigIntegeer class
+// But were is the fun in using that one?
 public class AdvMath{
 
-    public static BigInteger rand_gen_BigInteger(BigInteger lower_bound,BigInteger upper_bound) {
+    public static BigInteger randGenBigInteger(BigInteger lower_bound,BigInteger upper_bound) {
         Random rnd = new Random();
         BigInteger delta = upper_bound.subtract(lower_bound);
         BigInteger retval = new BigInteger(delta.bitLength(), rnd);
@@ -16,9 +17,9 @@ public class AdvMath{
     }
 
     // Returns a random coprime number to num that is lesser than num
-    public static BigInteger find_coprime(BigInteger num) {
+    public static BigInteger findCoprime(BigInteger num) {
         // pivot in [0, num-2]
-        BigInteger pivot = rand_gen_BigInteger(BigInteger.ZERO, num.subtract(BigInteger.valueOf(2)));
+        BigInteger pivot = randGenBigInteger(BigInteger.ZERO, num.subtract(BigInteger.valueOf(2)));
         while (BigInteger.ONE.compareTo(gcd(num,(pivot.mod(num.subtract(BigInteger.ONE))).add(BigInteger.ONE))) != 0) {
             pivot = pivot.add(BigInteger.ONE);
         }
@@ -35,18 +36,18 @@ public class AdvMath{
     }
 
     // Returns a random prime number in [lower_bound, upper_bound)
-    public static BigInteger find_prime(BigInteger lower_bound, BigInteger upper_bound) {
+    public static BigInteger findPrime(BigInteger lower_bound, BigInteger upper_bound) {
         // Try numbers between lower_bound and upper_bound starting from a random index piv
-        BigInteger piv = rand_gen_BigInteger(BigInteger.ZERO ,upper_bound.subtract(lower_bound).subtract(BigInteger.ONE));
+        BigInteger piv = randGenBigInteger(BigInteger.ZERO ,upper_bound.subtract(lower_bound).subtract(BigInteger.ONE));
         for (BigInteger i = BigInteger.ZERO; i.compareTo(upper_bound.subtract(lower_bound)) == -1; i = i.add(BigInteger.ONE)) {
             //System.out.println(lower_bound.add(piv.add(i).mod(upper_bound.subtract(lower_bound))));
-            if (is_prime(lower_bound.add(piv.add(i).mod(upper_bound.subtract(lower_bound)))))
+            if (isPrime(lower_bound.add(piv.add(i).mod(upper_bound.subtract(lower_bound)))))
                 return lower_bound.add(piv.add(i).mod(upper_bound.subtract(lower_bound)));
         }
         throw new RuntimeException("Now prime numbers in [" + lower_bound + ", " + upper_bound + "]");
     }
 
-    public static boolean is_prime(BigInteger num) {
+    public static boolean isPrime(BigInteger num) {
         if (num.compareTo(BigInteger.ONE) == 0)
             return false;
         if (num.compareTo(BigInteger.valueOf(2)) == 0)
@@ -55,15 +56,15 @@ public class AdvMath{
         final int SAMPLE_SIZE = 50;
         for (int i = 0; i < SAMPLE_SIZE; i++){
             // Find a random number in [2, num-2]
-            BigInteger test = rand_gen_BigInteger(BigInteger.ZERO, num.subtract(BigInteger.valueOf(4))).add(BigInteger.valueOf(2));
-            if (mod_expo(test, num.subtract(BigInteger.ONE), num).compareTo(BigInteger.ONE) != 0)
+            BigInteger test = randGenBigInteger(BigInteger.ZERO, num.subtract(BigInteger.valueOf(4))).add(BigInteger.valueOf(2));
+            if (modExpo(test, num.subtract(BigInteger.ONE), num).compareTo(BigInteger.ONE) != 0)
                 return false;
         }
         return true;
     }
 
     // Returns (base^power) % mod
-    public static BigInteger mod_expo(BigInteger base, BigInteger power, BigInteger mod) {
+    public static BigInteger modExpo(BigInteger base, BigInteger power, BigInteger mod) {
         base = base.mod(mod);
         if (0 == power.compareTo(BigInteger.ZERO))
             return BigInteger.ONE;
@@ -91,7 +92,7 @@ public class AdvMath{
     }
 
     // returns an s with is the solution of at+bs=gcd(a,b), when a,b are known and a > b
-    public static BigInteger extended_gcd(BigInteger a, BigInteger b) {
+    public static BigInteger extendedGcd(BigInteger a, BigInteger b) {
         BigInteger[] r = new BigInteger[3];
         BigInteger[] t = new BigInteger[3];
         BigInteger[] s = new BigInteger[3];
