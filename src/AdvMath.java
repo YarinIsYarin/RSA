@@ -2,18 +2,19 @@ import java.math.BigInteger;
 import java.util.Random;
 import java.util.Stack;
 
-// Some of the code in this class is all ready implemented in the BigIntegeer class
+// Some of the code in this class is all ready implemented in the BigInteger class
 // But were is the fun in using that one?
 public class AdvMath{
 
-    public static BigInteger randGenBigInteger(BigInteger lower_bound,BigInteger upper_bound) {
+    // Returns a random BigInteger in [lowerBound, upperBound]
+    public static BigInteger randGenBigInteger(BigInteger lowerBound,BigInteger upperBound) {
         Random rnd = new Random();
-        BigInteger delta = upper_bound.subtract(lower_bound);
+        BigInteger delta = upperBound.subtract(lowerBound);
         BigInteger retval = new BigInteger(delta.bitLength(), rnd);
         while (retval.compareTo(delta) == 1) {
             retval = new BigInteger(delta.bitLength(), rnd);
         }
-        return retval.add(lower_bound);
+        return retval.add(lowerBound);
     }
 
     // Returns a random coprime number to num that is lesser than num
@@ -35,16 +36,16 @@ public class AdvMath{
         return gcd(max.mod(min), min);
     }
 
-    // Returns a random prime number in [lower_bound, upper_bound)
-    public static BigInteger findPrime(BigInteger lower_bound, BigInteger upper_bound) {
-        // Try numbers between lower_bound and upper_bound starting from a random index piv
-        BigInteger piv = randGenBigInteger(BigInteger.ZERO ,upper_bound.subtract(lower_bound).subtract(BigInteger.ONE));
-        for (BigInteger i = BigInteger.ZERO; i.compareTo(upper_bound.subtract(lower_bound)) == -1; i = i.add(BigInteger.ONE)) {
-            //System.out.println(lower_bound.add(piv.add(i).mod(upper_bound.subtract(lower_bound))));
-            if (isPrime(lower_bound.add(piv.add(i).mod(upper_bound.subtract(lower_bound)))))
-                return lower_bound.add(piv.add(i).mod(upper_bound.subtract(lower_bound)));
+    // Returns a random prime number in [lowerBound, upperBound)
+    public static BigInteger findPrime(BigInteger lowerBound, BigInteger upperBound) {
+        // Try numbers between lowerBound and upperBound starting from a random index piv
+        BigInteger piv = randGenBigInteger(BigInteger.ZERO ,upperBound.subtract(lowerBound).subtract(BigInteger.ONE));
+        for (BigInteger i = BigInteger.ZERO; i.compareTo(upperBound.subtract(lowerBound)) == -1; i = i.add(BigInteger.ONE)) {
+            //System.out.println(lowerBound.add(piv.add(i).mod(upperBound.subtract(lowerBound))));
+            if (isPrime(lowerBound.add(piv.add(i).mod(upperBound.subtract(lowerBound)))))
+                return lowerBound.add(piv.add(i).mod(upperBound.subtract(lowerBound)));
         }
-        throw new RuntimeException("Now prime numbers in [" + lower_bound + ", " + upper_bound + "]");
+        throw new RuntimeException("Now prime numbers in [" + lowerBound + ", " + upperBound + "]");
     }
 
     public static boolean isPrime(BigInteger num) {

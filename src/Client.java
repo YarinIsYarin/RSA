@@ -13,40 +13,29 @@ public class Client {
     private BigInteger mySk;
     private BigInteger myPk;
     private BigInteger myN;
-
     // The values I need to send an encrypted message
     private BigInteger hisPk;
     private BigInteger hisN;
 
-    private Client() {
-            // Some nice default values
-            this(300, "127.0.0.1", 5000);
-    }
-
-    private Client(int str, String ip, int port) {
-        this(BigInteger.valueOf(10).pow(str), BigInteger.valueOf(10).pow(str+1), ip, port);
-    }
-
-    Client(int str) {
-        this(BigInteger.valueOf(10).pow(str), BigInteger.valueOf(10).pow(str+1));
-    }
-
-    private Client(BigInteger lower_bound, BigInteger upper_bound) {
+    Client(int strength) {
+        BigInteger lowerBound = BigInteger.valueOf(10).pow(strength);
+        BigInteger upperBound = BigInteger.valueOf(10).pow(strength+1);
         System.out.println("[System]: Generating keys...");
-        BigInteger q = AdvMath.findPrime(lower_bound, upper_bound);
-        BigInteger p = AdvMath.findPrime(lower_bound, upper_bound);
+        BigInteger q = AdvMath.findPrime(lowerBound, upperBound);
+        BigInteger p = AdvMath.findPrime(lowerBound, upperBound);
         myN = p.multiply(q);
         BigInteger phi = (q.subtract(BigInteger.ONE)).multiply(p.subtract(BigInteger.ONE));
         myPk = AdvMath.findCoprime(phi);
         mySk = AdvMath.extendedGcd(phi, myPk).add(phi);
     }
 
-    private Client(BigInteger lower_bound, BigInteger upper_bound, String ip, int port) {
-        this(lower_bound, upper_bound);
+    Client(int strength, String ip, int port) {
+        this(strength);
         try {
             socket = new Socket(ip, port);
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println("[System]: Failed to connect to server at " + ip);
+            System.exit(0);
         }
         this.connect();
     }
@@ -90,7 +79,8 @@ public class Client {
             }
             out.writeUTF(this.encrypt(BigInteger.valueOf((int)'\n')).toString());
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println("[System]: The other guy disconnected");
+            System.exit(0);
         }
     }
 
@@ -101,16 +91,9 @@ public class Client {
                 System.out.print((char)this.decrypt(new BigInteger(line)).intValue());
             }
             catch(IOException e)  {
-                System.out.println(e.getStackTrace());
+                System.out.println("[System]: The other guy disconnected");
+                System.exit(0);
             }
         }
     }
-
-    public static void main(String args[]) {
-        Client client = new Client();
-        System.out.println("[System]: This endpoint is ready!");
-        (new Thread(new Reader(client))).start();
-        (new Thread(new Writer(client))).start();
-    }
-
 }
