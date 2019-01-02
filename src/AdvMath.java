@@ -1,6 +1,5 @@
 import java.math.BigInteger;
 import java.util.Random;
-import java.util.Stack;
 
 // Some of the code in this class is all ready implemented in the BigInteger class
 // But were is the fun in using that one?
@@ -21,7 +20,7 @@ public class AdvMath{
     public static BigInteger findCoprime(BigInteger num) {
         // pivot in [0, num-2]
         BigInteger pivot = randGenBigInteger(BigInteger.ZERO, num.subtract(BigInteger.valueOf(2)));
-        while (BigInteger.ONE.compareTo(gcd(num,(pivot.mod(num.subtract(BigInteger.ONE))).add(BigInteger.ONE))) != 0) {
+        while (!BigInteger.ONE.equals(gcd(num,(pivot.mod(num.subtract(BigInteger.ONE))).add(BigInteger.ONE)))) {
             pivot = pivot.add(BigInteger.ONE);
         }
         // We use this weird equation to avoid 1, num
@@ -29,6 +28,7 @@ public class AdvMath{
 
     }
 
+    // Using euclid's algorithm
     public static BigInteger gcd(BigInteger a, BigInteger b) {
         BigInteger max = a.max(b); BigInteger min = a.min(b);
         if (min.compareTo(BigInteger.ZERO) == 0)
@@ -45,54 +45,46 @@ public class AdvMath{
             if (isPrime(lowerBound.add(piv.add(i).mod(upperBound.subtract(lowerBound)))))
                 return lowerBound.add(piv.add(i).mod(upperBound.subtract(lowerBound)));
         }
-        throw new RuntimeException("Now prime numbers in [" + lowerBound + ", " + upperBound + "]");
+        throw new RuntimeException("No prime numbers in [" + lowerBound + ", " + upperBound + "]");
     }
 
+    // This test is based on Fermat's little theorem
+    // This a test has a chance lower than 1/2^SAMPLE_SIZE of false positive
     public static boolean isPrime(BigInteger num) {
-        if (num.compareTo(BigInteger.ONE) == 0)
+        final int SAMPLE_SIZE = 150;
+        if (num.equals(BigInteger.ONE))
             return false;
-        if (num.compareTo(BigInteger.valueOf(2)) == 0)
+        if (num.equals(BigInteger.valueOf(2)) || num.equals(BigInteger.valueOf(3)))
             return true;
 
-        final int SAMPLE_SIZE = 50;
         for (int i = 0; i < SAMPLE_SIZE; i++){
             // Find a random number in [2, num-2]
             BigInteger test = randGenBigInteger(BigInteger.ZERO, num.subtract(BigInteger.valueOf(4))).add(BigInteger.valueOf(2));
-            if (modExpo(test, num.subtract(BigInteger.ONE), num).compareTo(BigInteger.ONE) != 0)
+            if (!modExpo(test, num.subtract(BigInteger.ONE), num).equals(BigInteger.ONE)) {
                 return false;
+            }
         }
         return true;
     }
 
     // Returns (base^power) % mod
     public static BigInteger modExpo(BigInteger base, BigInteger power, BigInteger mod) {
-        base = base.mod(mod);
-        if (0 == power.compareTo(BigInteger.ZERO))
+        if (base.equals(BigInteger.ZERO))
+            return BigInteger.ZERO;
+        // base case, we need to calc something to the power of 0
+        if (power.equals(BigInteger.ZERO))
             return BigInteger.ONE;
+        BigInteger retVal = BigInteger.ONE;
+        if (power.mod(BigInteger.valueOf(2)).equals(BigInteger.ONE)) {
+            retVal = base;
+            power = power.subtract(BigInteger.ONE);
+        }
+        return retVal.multiply(modExpo(base, power.divide(BigInteger.valueOf(2)), mod).pow(2)).mod(mod);
 
-        Stack<Integer> divisors = new Stack<>();
-        while (0 != power.compareTo(BigInteger.ONE)) {
-            if (0 == power.mod(BigInteger.valueOf(2)).compareTo(BigInteger.ZERO)) {
-                divisors.push(2);
-                power = power.divide(BigInteger.valueOf(2));
-            } else {
-                divisors.push(1);
-                power = power.subtract(BigInteger.ONE);
-            }
-        }
-        BigInteger res = base;
-        while (!divisors.empty()) {
-            int temp = divisors.pop();
-            if (2 == temp)
-                res = res.multiply(res);
-            else
-                res = res.multiply(base);
-            res = res.mod(mod);
-        }
-        return res;
     }
 
-    // returns an s with is the solution of at+bs=gcd(a,b), when a,b are known and a > b
+    // Returns an s with is the solution of at+bs=gcd(a,b), when a,b are known and a > b
+    // This is an implementation of the extended euclid's algorithm
     public static BigInteger extendedGcd(BigInteger a, BigInteger b) {
         BigInteger[] r = new BigInteger[3];
         BigInteger[] t = new BigInteger[3];
@@ -102,7 +94,7 @@ public class AdvMath{
         t[0] = BigInteger.ONE; t[1] = BigInteger.ZERO;
         s[0] = BigInteger.ZERO; s[1] = BigInteger.ONE;
         int i;
-        for (i = 1; r[i%3].compareTo(BigInteger.ZERO) != 0; i++) {
+        for (i = 1; !r[i%3].equals(BigInteger.ZERO); i++) {
             /*
             System.out.println("gcd is : " + r[i%3]);
             System.out.println("s is : " + s[i%3]);
